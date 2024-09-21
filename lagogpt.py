@@ -1,4 +1,5 @@
 import pandas as pd
+from transformers import AutoTokenizer
 from datasets import Dataset
 
 data = {
@@ -11,7 +12,15 @@ data = {
         "The Count of Monte Cristo", "Les Misérables", "Don Quixote", "Madame Bovary", "The Divine Comedy",
         "The Kite Runner", "Memoirs of a Geisha", "The Da Vinci Code", "A Tale of Two Cities",
         "One Hundred Years of Solitude", "Slaughterhouse-Five", "Catch-22", "Of Mice and Men", "Beloved",
-        "The Shining", "The Road", "Gone with the Wind"
+        "The Shining", "The Road", "Gone with the Wind", "The Hunger Games", "Dune", "The Handmaid's Tale",
+        "The Secret Garden", "The Girl with the Dragon Tattoo", "The Maze Runner", "Percy Jackson & the Olympians",
+        "Ender's Game", "The Night Circus", "The Book Thief", "Life of Pi", "The Time Traveler's Wife",
+        "The Fault in Our Stars", "The Help", "Water for Elephants", "The Giver", "Divergent", "The Outsiders",
+        "A Wrinkle in Time", "The Goldfinch", "Shogun", "The Pillars of the Earth", "The Poisonwood Bible",
+        "The Godfather", "Good Omens", "Atonement", "The Lovely Bones", "The Girl on the Train", "Big Little Lies",
+        "American Gods", "The Lightning Thief", "Room", "The Silent Patient", "The Institute",
+        "The Girl Who Played with Fire", "Sharp Objects", "The Rosie Project", "Circe", "The Nightingale", 
+        "Red Queen", "The Power"
     ],
     "plot": [
         "The story of Elizabeth Bennet as she navigates love and family dynamics in 19th-century England.",
@@ -54,12 +63,57 @@ data = {
         "Sethe, an escaped slave, is haunted by her traumatic past and the ghost of her dead daughter.",
         "A family isolated in a haunted hotel during the winter faces terrifying supernatural forces and personal madness.",
         "A father and son journey through a post-apocalyptic landscape, struggling to survive and maintain their humanity.",
-        "Scarlett O'Hara's life is upended by the American Civil War as she struggles to maintain her family's plantation."
+        "Scarlett O'Hara's life is upended by the American Civil War as she struggles to maintain her family's plantation.",
+        "In a dystopian future, Katniss Everdeen volunteers for a deadly televised competition to protect her sister.",
+        "On the desert planet Arrakis, Paul Atreides navigates politics, prophecy, and survival in an epic saga.",
+        "In a totalitarian society, Offred serves as a 'Handmaid' in a dystopian future where women's rights are suppressed.",
+        "Orphan Mary Lennox discovers a hidden, neglected garden and restores it, transforming her life in the process.",
+        "A journalist teams up with an unusual hacker to uncover a mystery surrounding a powerful family in Sweden.",
+        "A group of teens must navigate a deadly maze in this thrilling dystopian adventure.",
+        "Percy Jackson discovers he is a demigod and embarks on a quest to prevent a war among the Greek gods.",
+        "A brilliant young boy is recruited to fight an alien race in a war that will determine humanity's future.",
+        "Two magicians duel in a magical circus that appears only at night, while their destinies become intertwined.",
+        "A young girl steals books to survive the harsh realities of life during Nazi Germany's regime.",
+        "A young boy survives a shipwreck and forms a strange relationship with a tiger while stranded in the Pacific Ocean.",
+        "A man with a genetic disorder that causes him to time travel falls in love with a woman in this unique love story.",
+        "Two teens, both battling terminal illnesses, find love and meaning in the face of death.",
+        "In the 1960s South, an aspiring writer tells the stories of African-American maids working for white families.",
+        "A veterinary student joins a traveling circus during the Great Depression and falls in love.",
+        "In a controlled, colorless society, Jonas receives the memories of the past and begins to question everything.",
+        "In a future Chicago, Tris Prior must choose between five factions that define their society.",
+        "A group of teens struggles with growing up, friendship, and violence in this coming-of-age story.",
+        "A young girl, her brother, and a friend travel through space and time to rescue her father from a dark force.",
+        "After surviving a terrorist attack, a boy grows up facing trauma and an obsession with a stolen painting.",
+        "An English navigator is shipwrecked in Japan and becomes involved in the country's political intrigue.",
+        "In medieval England, the construction of a cathedral serves as the backdrop for a story of love and conflict.",
+        "A missionary family moves to the Congo and faces cultural clashes and personal tragedies.",
+        "An Italian-American family rises to power in the world of organized crime.",
+        "A demon and an angel must work together to prevent the apocalypse in this humorous fantasy tale.",
+        "A woman reflects on the consequences of a lie she told as a child, which altered the course of many lives.",
+        "After her murder, a girl narrates the investigation and aftermath from the afterlife.",
+        "A woman becomes obsessed with uncovering the truth about another woman's disappearance.",
+        "The lives of three women unravel in a beach town, leading to shocking secrets being revealed.",
+        "Shadow Moon is drawn into a conflict between old and new gods in this dark and imaginative tale.",
+        "Percy Jackson embarks on a quest to recover Zeus's stolen lightning bolt in the modern world.",
+        "A kidnapped woman forms a bond with her captor while plotting her escape from his secluded room.",
+        "A psychologist becomes obsessed with a mute patient who may hold the key to a mysterious crime.",
+        "A boy with psychic abilities is held captive in a mysterious institute where strange experiments are conducted.",
+        "The sequel to 'The Girl with the Dragon Tattoo' follows Lisbeth Salander as she uncovers more secrets.",
+        "A journalist returns to her hometown to investigate a series of brutal murders in this dark thriller.",
+        "A socially awkward man embarks on a quest to find love using a scientific approach.",
+        "The story of the goddess Circe, exiled to an island, where she discovers her powers and faces gods and mortals.",
+        "During World War II, two sisters in occupied France fight against the Nazis in different ways.",
+        "In a world where some people have dangerous powers, a young girl fights for her survival and freedom.",
+        "A world where women develop the ability to generate electricity, leading to shifts in societal power."
     ]
 }
 
 df = pd.DataFrame(data)
 
-dataset = Dataset.from_pandas(df)
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-print(dataset)
+def tokenize_function(example):
+    return tokenizer(example["plot"], padding="max_length", truncation=True)
+
+hf_dataset = Dataset.from_pandas(df)
+tokenized_dataset = hf_dataset.map(tokenize_function, batched=True)
